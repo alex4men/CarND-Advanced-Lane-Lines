@@ -19,8 +19,13 @@ The goals / steps of this project are the following:
 [image2]: ./output_images/straight_lines1_undist.png "Road Transformed"
 [image3]: ./output_images/straight_lines1_binary.png "Binary Example"
 [image4]: ./output_images/straight_lines1_warped.png "Warp Example"
-[image5]: ./output_images/lane_lines_found.png "Fit Visual"
+[image5]: ./output_images/lane_lines_found_resub.png "Fit Visual"
 [image6]: ./output_images/result.png "Output"
+[image7]: ./output_images/straight_lines1_binary_bad_frame.png "Binary Example"
+[image8]: ./output_images/straight_lines1_binary_bad_frame_corr.png "Binary Example"
+[image9]: ./output_images/straight_lines1_binary_resub.png "Binary Example"
+[image10]: ./output_images/lane_lines_found_bad_frame_corr.png "Fit Visual"
+
 [video1]: ./test_videos_output/project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -56,9 +61,21 @@ I applied distortion correction like in the previous case (11th IPython cell). F
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of saturation, gradient direction and X-gradient magnitude thresholds to generate a binary image (code cells 12 and 14).  Here's an example of my output for this step.
+On the first submission I used the combination of saturation, gradient direction and X-gradient magnitude thresholds to generate a binary image (code cells 12 and 14). Here's an example of my output for this step on first submission:
 
 ![alt text][image3]
+
+Looks good, but on some frames (with contrast shadows) this filter gave me a lot of wrong activations. Like in this frame:
+
+![alt text][image7]
+
+To improve the quality of lane lines filtering I added filtering in red channel using automatic OTSU thresholding.
+
+![alt text][image8]
+
+The new filter applied to initial frame:
+
+![alt text][image9]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
@@ -82,6 +99,10 @@ I verified that my perspective transform was working as expected by drawing the 
 In code cells 19, 20 and 21 I find lane lines in the binary warped image using the function `find_lane_pixels()` and then I fit my lane lines with a 2nd order polynomial using the function `fit_polynomial()` (which implements sliding window approach) kinda like this:
 
 ![alt text][image5]
+
+The lane detection applied to the problematic frame.
+
+![alt text][image10]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -111,9 +132,7 @@ Here's a [link to my video result](./test_videos_output/project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
-
-To binarize the image I used combination of X-gradient magnitude threshold, gradient direction threshold and saturation threshold. The first two thresholds finds contrast lane lines edges, close to vertical. And the last threshold finds only high-saturated colors, like white and yellow lane lines. It is hard to tune all the threshold values by hand, filtering quality depends on the scene. Neural networks can help in detecting lane lines better.
+To binarize the image I used combination of X-gradient magnitude threshold, gradient direction threshold, saturation and red channel threshold. The first two thresholds finds contrast lane lines edges, close to vertical. And the last threshold finds only high-saturated colors, like white and yellow lane lines. It is hard to tune all the threshold values by hand, filtering quality depends on the scene. Neural networks can help in detecting lane lines better.
 
 To find lane lines I am using sliding window approach. It can fail in situations of multiple contrast lines on the road parallel to the lane lines, and when the lane lines are not so contrast and clear (i.e. under bright sunlight).
 
